@@ -61,7 +61,7 @@ namespace RFIDPiggyBank
             // and that the media is formatted
             string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
             FileStream FileHandle = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create);
-          
+
             FileHandle.Close();
             _sdCard.Unmount();
         }

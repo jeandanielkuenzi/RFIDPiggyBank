@@ -7,17 +7,16 @@ using GTM = Gadgeteer.Modules;
 
 namespace RFIDPiggyBank
 {
-    public class RFIDReader
+    public class ReaderRFID
     {
         private GTM.GHIElectronics.RFIDReader _reader;
-        private static RFIDReader _instance;
+        private static ReaderRFID _instance;
 
-        private RFIDReader()
+        private ReaderRFID()
         {
             _reader = new GTM.GHIElectronics.RFIDReader(8);
             _reader.IdReceived += _reader_IdReceived;
             _reader.MalformedIdReceived += _reader_MalformedIdReceived;
-
         }
 
         private void _reader_MalformedIdReceived(GTM.GHIElectronics.RFIDReader sender, EventArgs e)
@@ -30,16 +29,16 @@ namespace RFIDPiggyBank
             Debug.Print("Uid : " + e.ToString());
         }
 
-        public static RFIDReader Istance
+        public static ReaderRFID Istance
         {
             get { return _instance; }
         }
 
-        public static RFIDReader GetInstance()
+        public static ReaderRFID GetInstance()
         {
             if (_instance == null)
             {
-                _instance = new RFIDReader();
+                _instance = new ReaderRFID();
             }
             return _instance;
         }

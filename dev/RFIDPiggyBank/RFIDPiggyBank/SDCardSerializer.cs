@@ -17,18 +17,22 @@ using GHI.IO;
 using GHI.IO.Storage;
 using System.Text;
 
+using GTM = Gadgeteer.Modules;
+
 namespace RFIDPiggyBank
 {
     public class SDCardSerializer
     {
         private const string FILE_NAME = "Cards.xml";
 
-        private SDCard _sdCard;
+        /// <summary>The SD Card module using socket 5 of the mainboard.</summary>
+        private GTM.GHIElectronics.SDCard _sdCard;
         private static SDCardSerializer _instance;
 
         private SDCardSerializer()
         {
-            _sdCard = new SDCard();
+
+            _sdCard = new GTM.GHIElectronics.SDCard(5);
         }
 
         public static SDCardSerializer Instance

@@ -3,6 +3,7 @@ using GHI.Pins;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
 using Gadgeteer;
+using GHIElectronics.Gadgeteer;
 
 namespace RFIDPiggyBank
 {
@@ -15,7 +16,7 @@ namespace RFIDPiggyBank
 
         private ServoMotor()
         {
-            _servo = new PWM(FEZSpider.Socket11.Pwm8, 2000, LOCK_POSITION, PWM.ScaleFactor.Microseconds, false);
+            _servo = new PWM(GHI.Pins.FEZSpider.Socket11.Pwm8, 2000, LOCK_POSITION, PWM.ScaleFactor.Microseconds, false);
         } 
 
         public static ServoMotor Instance

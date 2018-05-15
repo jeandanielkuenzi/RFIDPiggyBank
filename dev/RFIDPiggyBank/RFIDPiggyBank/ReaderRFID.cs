@@ -9,24 +9,26 @@ namespace RFIDPiggyBank
 {
     public class ReaderRFID
     {
-        private GTM.GHIElectronics.RFIDReader _reader;
         private static ReaderRFID _instance;
+
+        //<summary>The RFID Reader module using socket 8 of the mainboard.</summary>
+        private Gadgeteer.Modules.GHIElectronics.RFIDReader _rfidReader;
 
         private ReaderRFID()
         {
-            _reader = new GTM.GHIElectronics.RFIDReader(8);
-            _reader.IdReceived += _reader_IdReceived;
-            _reader.MalformedIdReceived += _reader_MalformedIdReceived;
+            _rfidReader = new GTM.GHIElectronics.RFIDReader(8);
+            _rfidReader.IdReceived += _rfidReader_IdReceived;
+            _rfidReader.MalformedIdReceived += _rfidReader_MalformedIdReceived;
         }
 
-        private void _reader_MalformedIdReceived(GTM.GHIElectronics.RFIDReader sender, EventArgs e)
+        private void _rfidReader_MalformedIdReceived(GTM.GHIElectronics.RFIDReader sender, EventArgs e)
         {
-            Debug.Print("Badge mal scanné, veuillez recommencé");
+            Debug.Print("Badge mal scanné");
         }
 
-        private void _reader_IdReceived(GTM.GHIElectronics.RFIDReader sender, string e)
+        private void _rfidReader_IdReceived(GTM.GHIElectronics.RFIDReader sender, string id)
         {
-            Debug.Print("Uid : " + e.ToString());
+            Debug.Print("Uid : " + id);
         }
 
         public static ReaderRFID Istance

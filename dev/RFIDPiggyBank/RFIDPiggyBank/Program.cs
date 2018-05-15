@@ -1,76 +1,68 @@
-using System;
-using Microsoft.SPOT;
-using Gadgeteer;
-using Microsoft.SPOT.Hardware;
-using GHI.Pins;
-
-using GTM = Gadgeteer.Modules;
+ï»¿using System;
+using System.Collections;
 using System.Threading;
+using Microsoft.SPOT;
+using Microsoft.SPOT.Presentation;
+using Microsoft.SPOT.Presentation.Controls;
+using Microsoft.SPOT.Presentation.Media;
+using Microsoft.SPOT.Presentation.Shapes;
+using Microsoft.SPOT.Touch;
+
+using Gadgeteer.Networking;
+using GT = Gadgeteer;
+using GTM = Gadgeteer.Modules;
+using Gadgeteer.Modules.GHIElectronics;
+using Microsoft.SPOT.Hardware;
 
 namespace RFIDPiggyBank
 {
-    public class Program
+    public partial class Program
     {
-        private static Mainboard mainboard = new GHIElectronics.Gadgeteer.FEZSpider();
-        private static bool test = false;
-        static GTM.GHIElectronics.RFIDReader _reader = new GTM.GHIElectronics.RFIDReader(8);
-        static OutputPort mainled = new OutputPort(FEZSpider.DebugLed, false);
-
-        public static void Main()
+        // This method is run when the mainboard is powered up or reset.   
+        void ProgramStarted()
         {
-            Debug.Print(Resources.GetString(Resources.StringResources.String1));
+            /*******************************************************************************************
+            Modules added in the Program.gadgeteer designer view are used by typing 
+            their name followed by a period, e.g.  button.  or  camera.
+            
+            Many modules generate useful events. Type +=<tab><tab> to add a handler to an event, e.g.:
+                button.ButtonPressed +=<tab><tab>
+            
+            If you want to do something periodically, use a GT.Timer and handle its Tick event, e.g.:
+                GT.Timer timer = new GT.Timer(1000); // every second (1000ms)
+                timer.Tick +=<tab><tab>
+                timer.Start();
+            *******************************************************************************************/
 
-            AnalogInput joystick_y = new AnalogInput(FEZSpider.Socket9.AnalogInput4); //Initialise l'axe Y par rapport à l'orientation de mon joystick
+            Initialize();
 
-            _reader.IdReceived += _reader_IdReceived;
-            _reader.MalformedIdReceived += _reader_MalformedIdReceived;
+            // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
+            Debug.Print("Program Started");
 
-            ListOfCards.GetInstance().AddCardToList("Badge", "U1 2D 34 56 FC");
-            ListOfCards.GetInstance().AddCardToList("Badge", "U9 65 B2 3C F5");
-            ListOfCards.GetInstance().AddCardToList("Badge", "U1 2D 34 56 FC");
-            ListOfCards.GetInstance().AddCardToList("Badge", "U9 65 B2 3C F5");
-            ListOfCards.GetInstance().AddCardToList("Badge", "U1 2D 34 56 FC");
-            ListOfCards.GetInstance().AddCardToList("Badge", "U9 65 B2 3C F5");
-            ListOfCards.GetInstance().AddCardToList("Marty", "U1 2D 34 56 FC");
-            ListOfCards.GetInstance().AddCardToList("Professeur", "U9 65 B2 3C F5");
-
-            //SDCardSerializer.GetInstance().SerializecCardsToSDCard(ListOfCards.GetInstance().CardsList);
-            //SDCardSerializer.GetInstance().showDirectory();
-            //RFIDReader.GetInstance();
-            ServoMotor.GetInstance();
+            LCD.GetInstance().DisplayMenu();
 
             while (true)
             {
-                Debug.Print(joystick_y.Read().ToString());
-                if (joystick_y.Read() == 1)
+                double position = _joystick.GetPosition().Y;
+                Debug.Print(position.ToString());
+                if (position > 0.9)
                 {
                     ServoMotor.GetInstance().Unlock();
                 }
-                else if (joystick_y.Read() == 0)
+                else if (position < -0.9)
                 {
                     ServoMotor.GetInstance().Lock();
                 }
             }
         }
 
-        private static void _reader_MalformedIdReceived(GTM.GHIElectronics.RFIDReader sender, EventArgs e)
+        private void Initialize()
         {
-            Debug.Print("Badge mal scanné, veuillez recommencé");
+            ServoMotor.GetInstance();
+            ReaderRFID.GetInstance();
+            LCD.GetInstance(); 
+            SDCardSerializer.GetInstance();
         }
 
-        private static void _reader_IdReceived(GTM.GHIElectronics.RFIDReader sender, string e)
-        {
-            Debug.Print("Uid : " + e.ToString());
-        }
-
-        private void AddBadge()
-        {
-
-        }
-
-        private void DeleteBadge()
-        {
-
-        }
     }
 }

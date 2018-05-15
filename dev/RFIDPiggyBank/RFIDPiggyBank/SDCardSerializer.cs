@@ -7,7 +7,9 @@
 using System;
 using System.IO;
 using System.Collections;
+using System.Ext.Xml;
 using System.Xml;
+using System.Threading;
 
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;
@@ -31,7 +33,6 @@ namespace RFIDPiggyBank
 
         private SDCardSerializer()
         {
-
             _sdCard = new GTM.GHIElectronics.SDCard(5);
         }
 
@@ -56,54 +57,67 @@ namespace RFIDPiggyBank
             return CardsList;
         }
 
-        public void SerializecCardsToSDCard(ArrayList CardsList)
+        public void SaveCards()
         {
             // Mount the file system
             _sdCard.Mount();
 
             // Assume only one storage device is available
             // and that the media is formatted
-            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-            FileStream FileHandle = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create);
 
-            FileHandle.Close();
+            do
+            {
+
+            } while (!_sdCard.IsCardMounted);
+
+            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+
+            FileStream writer = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create);
+
+            //XmlWriter xmlWriter = XmlWriter.Create(writer);
+
+            //xmlWriter.WriteStartElement("CardsList");
+            //foreach (Card card in CardsList)
+            //{
+            //    xmlWriter.WriteStartElement("Card");
+
+            //    xmlWriter.WriteElementString("Name", card.Name);
+            //    xmlWriter.WriteElementString("Uid", card.Uid);
+
+            //    xmlWriter.WriteEndElement();
+            //}
+            //xmlWriter.WriteEndElement();
+
+            //xmlWriter.Close();
+
+            writer.Close();
+
             _sdCard.Unmount();
         }
 
-        public void showDirectory()
+        public void LoadCards()
         {
+            do
+            {
+                Debug.Print("Insérer une carte dans le lecteur");
+            } while (!_sdCard.IsCardInserted);
 
-            // this is a non-blocking call 
-            // it fires the RemovableMedia.Insert event after 
-            // the mount is finished. 
+            // Mount the file system
             _sdCard.Mount();
 
+            // Assume only one storage device is available
+            // and that the media is formatted
 
-            // Assume one storage device is available, access it through 
-            // NETMF and display the available files and folders:
-            Debug.Print("Getting files and folders:");
-            if (VolumeInfo.GetVolumes()[0].IsFormatted)
+            do
             {
-                string rootDirectory =
-                    VolumeInfo.GetVolumes()[0].RootDirectory;
-                string[] files = Directory.GetFiles(rootDirectory);
-                string[] folders = Directory.GetDirectories(rootDirectory);
+                Debug.Print("Veuillez attendre que la carte soit montée");
+            } while (!_sdCard.IsCardMounted);
 
-                Debug.Print("Files available on " + rootDirectory + ":");
-                for (int i = 0; i < files.Length; i++)
-                    Debug.Print(files[i]);
+            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
 
-                Debug.Print("Folders available on " + rootDirectory + ":");
-                for (int i = 0; i < folders.Length; i++)
-                    Debug.Print(folders[i]);
-            }
-            else
-            {
-                Debug.Print("Storage is not formatted. " +
-                    "Format on PC with FAT32/FAT16 first!");
-            }
-            // Unmount when done
-            _sdCard.Unmount();
+            FileStream reader = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create);
+
+            XmlReader xmlReader = XmlReader.Create(reader);
         }
     }
 }

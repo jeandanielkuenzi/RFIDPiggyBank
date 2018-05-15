@@ -10,13 +10,13 @@ using Microsoft.SPOT;
 namespace RFIDPiggyBank
 {
     [Serializable]
-    public class Cards
+    public class Card
     {
 
         private string _name;
         private string _uid;
 
-        public Cards(string pbName, string pbUid)
+        public Card(string pbName, string pbUid)
         {
             Name = pbName;
             Uid = pbUid;

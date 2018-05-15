@@ -45,13 +45,28 @@ namespace RFIDPiggyBank
         public void AddCardToList(string pbName, string pbUid)
         {
             pbName = (pbName == DEFAULT_NAME) ? pbName : pbName + CardsList.Count;
-            Cards card = new Cards(pbName, pbUid);
+            Card card = new Card(pbName, pbUid);
             CardsList.Add(card);
         }
 
         public void DeleteCardFromList(string pbUid)
         {
 
+        }
+
+        public bool FindCardInlist(string Uid)
+        {
+            bool result = false;
+
+            foreach (Card card in CardsList)
+            {
+                if (card.Uid == Uid)
+                {
+                    result = true;
+                    break;
+                }
+            }
+            return result;
         }
     }
 }

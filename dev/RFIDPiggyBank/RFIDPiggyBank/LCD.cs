@@ -41,7 +41,9 @@ namespace RFIDPiggyBank
 
         public void DisplayMenu()
         {
-            _lcd.SimpleGraphics.DisplayText("Menu a affiche", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, 10);
+            _lcd.SimpleGraphics.DisplayText("Ajouter un badge", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, 10);
+            _lcd.SimpleGraphics.DisplayText("Suprimmer un badge", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, 30);
+            _lcd.SimpleGraphics.DisplayText("Deverouiller avec le mot de passe", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, 50);
         }
     }
 }

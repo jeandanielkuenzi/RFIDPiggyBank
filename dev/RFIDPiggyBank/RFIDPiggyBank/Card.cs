@@ -1,7 +1,7 @@
 /*
  * Author   : Küenzi Jean-Daniel
  * Date     : 09.05.2018
- * Desc.    : Classe qui sert à instancier les badges RFID
+ * Desc.    : L'objet Card => Badge RFID
  * Version  : 1.0.0
  */
 using System;

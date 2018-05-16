@@ -18,9 +18,6 @@ namespace RFIDPiggyBank {
         /// <summary>The USB Client DP module using socket 1 of the mainboard.</summary>
         private Gadgeteer.Modules.GHIElectronics.USBClientDP _usbClientDP;
         
-        /// <summary>The Joystick module using socket 9 of the mainboard.</summary>
-        private Gadgeteer.Modules.GHIElectronics.Joystick _joystick;
-        
         /// <summary>This property provides access to the Mainboard API. This is normally not necessary for an end user program.</summary>
         protected new static GHIElectronics.Gadgeteer.FEZSpider Mainboard {
             get {
@@ -44,7 +41,6 @@ namespace RFIDPiggyBank {
         
         private void InitializeModules() {
             this._usbClientDP = new GTM.GHIElectronics.USBClientDP(1);
-            this._joystick = new GTM.GHIElectronics.Joystick(9);
         }
     }
 }

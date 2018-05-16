@@ -1,7 +1,7 @@
 /*
  * Author   : Küenzi Jean-Daniel
  * Date     : 09.05.2018
- * Desc.    : Classe qui contient la liste des badges et sert à les gérer
+ * Desc.    : Classe qui contient la liste des Card (Badge) et sert à les gérer
  * Version  : 1.0.0
  */
 using System;
@@ -11,13 +11,12 @@ using Microsoft.SPOT;
 namespace RFIDPiggyBank
 {
     [Serializable]
-    class ListOfCards
+    public class ListOfCards
     {
-        private const string DEFAULT_NAME = "Bagde";
+        public const string DEFAULT_NAME = "Bagde";
         private ArrayList _cardsList;
-        private static ListOfCards _instance;
 
-        private ListOfCards()
+        public ListOfCards()
         {
             _cardsList = new ArrayList();
         }
@@ -26,20 +25,6 @@ namespace RFIDPiggyBank
         {
             get { return _cardsList; }
             set { _cardsList = value; }
-        }
-
-        public static ListOfCards Instance
-        {
-            get { return _instance; }
-        }
-
-        public static ListOfCards GetInstance()
-        {
-            if (_instance == null)
-            {
-                _instance = new ListOfCards();
-            }
-            return Instance;
         }
 
         public void AddCardToList(string pbName, string pbUid)

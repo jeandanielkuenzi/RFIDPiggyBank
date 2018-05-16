@@ -1,3 +1,9 @@
+/*
+ * Author   : Küenzi Jean-Daniel
+ * Date     : 09.05.2018
+ * Desc.    : Classe qui va gérer le RFIDModule de GHI
+ * Version  : 1.0.0
+ */
 using System;
 using Microsoft.SPOT;
 using Microsoft.SPOT.Hardware;

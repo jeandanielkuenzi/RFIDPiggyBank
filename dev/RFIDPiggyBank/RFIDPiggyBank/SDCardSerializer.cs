@@ -1,7 +1,7 @@
 /*
  * Author   : Küenzi Jean-Daniel
  * Date     : 09.05.2018
- * Desc.    : Classe qui gère l'écriture et la lecture des badges sur la carte SD (SDCard module)
+ * Desc.    : Classe qui gère l'écriture et la lecture des Cards (Badge) sur la carte SD (SDCard module) de GHI
  * Version  : 1.0.0
  */
 using System;
@@ -57,51 +57,8 @@ namespace RFIDPiggyBank
             return CardsList;
         }
 
-        public void SaveCards()
+        public void SaveCards(ListOfCards list)
         {
-            // Mount the file system
-            _sdCard.Mount();
-
-            // Assume only one storage device is available
-            // and that the media is formatted
-
-            do
-            {
-
-            } while (!_sdCard.IsCardMounted);
-
-            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-
-            FileStream writer = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create);
-
-            //XmlWriter xmlWriter = XmlWriter.Create(writer);
-
-            //xmlWriter.WriteStartElement("CardsList");
-            //foreach (Card card in CardsList)
-            //{
-            //    xmlWriter.WriteStartElement("Card");
-
-            //    xmlWriter.WriteElementString("Name", card.Name);
-            //    xmlWriter.WriteElementString("Uid", card.Uid);
-
-            //    xmlWriter.WriteEndElement();
-            //}
-            //xmlWriter.WriteEndElement();
-
-            //xmlWriter.Close();
-
-            writer.Close();
-
-            _sdCard.Unmount();
-        }
-
-        public void LoadCards()
-        {
-            do
-            {
-                Debug.Print("Insérer une carte dans le lecteur");
-            } while (!_sdCard.IsCardInserted);
-
             // Mount the file system
             _sdCard.Mount();
 
@@ -115,9 +72,46 @@ namespace RFIDPiggyBank
 
             string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
 
-            FileStream reader = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create);
+            FileStream writer = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Create, FileAccess.Write);
 
-            XmlReader xmlReader = XmlReader.Create(reader);
+            byte[] SerializedData = Reflection.Serialize(list, typeof(ListOfCards));
+
+            writer.Write(SerializedData, 0, SerializedData.Length);
+
+            writer.Close();
+
+            _sdCard.Unmount();
+        }
+
+        public ListOfCards LoadCards()
+        {
+            do
+            {
+                Debug.Print("Insérer une carte dans le lecteur");
+            } while (!_sdCard.IsCardInserted);
+
+            // Mount the file system
+            _sdCard.Mount();
+
+            // Assume only one storage device is available
+            // and that the media is formatted
+            do
+            {
+                Debug.Print("Veuillez attendre que la carte soit montée");
+            } while (!_sdCard.IsCardMounted);
+
+            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+
+            FileStream reader = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Open, FileAccess.Read);
+
+            byte[] SerializedData = new byte[reader.Length];
+            reader.Read(SerializedData, 0, SerializedData.Length);
+
+            ListOfCards list = null;
+
+            list = (ListOfCards)Reflection.Deserialize(SerializedData, typeof(ListOfCards));
+
+            return list;
         }
     }
 }

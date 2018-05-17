@@ -13,10 +13,10 @@ namespace RFIDPiggyBank
     [Serializable]
     public class ListOfCards
     {
-        public const string DEFAULT_NAME = "Bagde";
         private ArrayList _cardsList;
+        private static ListOfCards _instance;
 
-        public ListOfCards()
+        private ListOfCards()
         {
             _cardsList = new ArrayList();
         }
@@ -27,9 +27,23 @@ namespace RFIDPiggyBank
             set { _cardsList = value; }
         }
 
+        public static ListOfCards Instance
+        {
+            get { return _instance; }
+        }
+
+        public static ListOfCards GetInstance()
+        {
+            if (_instance == null)
+            {
+                _instance = new ListOfCards();
+            }
+            return Instance;
+        }
+
         public void AddCardToList(string pbName, string pbUid)
         {
-            pbName = (pbName == DEFAULT_NAME) ? pbName : pbName + CardsList.Count;
+            pbName = (pbName == Card.DEFAULT_NAME) ? pbName + CardsList.Count : pbName;
             Card card = new Card(pbName, pbUid);
             CardsList.Add(card);
         }
@@ -39,13 +53,13 @@ namespace RFIDPiggyBank
 
         }
 
-        public bool FindCardInlist(string Uid)
+        public bool FindCardInlist(string pbUid)
         {
             bool result = false;
 
             foreach (Card card in CardsList)
             {
-                if (card.Uid == Uid)
+                if (card.Uid == pbUid)
                 {
                     result = true;
                     break;

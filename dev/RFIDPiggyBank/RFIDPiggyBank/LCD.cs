@@ -24,11 +24,6 @@ namespace RFIDPiggyBank
     {
         private static LCD _instance;
 
-        private const int MENU1_Y = 10;
-        private const int MENU2_Y = 30;
-        private const int MENU3_Y = 50;
-        private const int MENU4_Y = 70;
-
         private int _lcdWidth;
         private int _lcdHeight;
         /// <summary>The Display TE35 module using sockets 14, 13, 12 and 10 of the mainboard.</summary>
@@ -66,32 +61,9 @@ namespace RFIDPiggyBank
             return Instance;
         }
 
-        public void DisplayMainMenu(int _menu)
+        public void DisplayText(Gadgeteer.Color pbColor, string pbText = "", int pbPositionX = 10, int pbPositionY = 10)
         {
-            _lcd.SimpleGraphics.DisplayText("Ajouter un badge", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, MENU1_Y);
-            _lcd.SimpleGraphics.DisplayText("Supprimer un badge", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, MENU2_Y);
-            _lcd.SimpleGraphics.DisplayText("Afficher la liste des badges", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, MENU3_Y);
-            _lcd.SimpleGraphics.DisplayText("Deverouiller avec le mot de passe", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.Red, 10, MENU4_Y);
-            switch (_menu)
-            {
-                case 1:
-                    _lcd.SimpleGraphics.DisplayText("Ajouter un badge", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.White, 10, MENU1_Y);
-                    break;
-                case 2:
-                    _lcd.SimpleGraphics.DisplayText("Supprimer un badge", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.White, 10, MENU2_Y);
-                    break;
-                case 3:
-                    _lcd.SimpleGraphics.DisplayText("Afficher la liste des badges", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.White, 10, MENU3_Y);
-                    break;
-                case 4:
-                    _lcd.SimpleGraphics.DisplayText("Deverouiller avec le mot de passe", Resources.GetFont(Resources.FontResources.NinaB), Gadgeteer.Color.White, 10, MENU4_Y);
-                    break;
-            }
-        }
-
-        public void DisplayText(Gadgeteer.Color color, string Text = "", int positionX = 10, int positionY = 10)
-        {
-            _lcd.SimpleGraphics.DisplayTextInRectangle(Text, positionX, positionY, _lcdWidth, _lcdHeight, color, Resources.GetFont(Resources.FontResources.NinaB));
+            _lcd.SimpleGraphics.DisplayTextInRectangle(pbText, pbPositionX, pbPositionY, _lcdWidth, _lcdHeight, pbColor, Resources.GetFont(Resources.FontResources.NinaB));
         }
 
         public void Clear()

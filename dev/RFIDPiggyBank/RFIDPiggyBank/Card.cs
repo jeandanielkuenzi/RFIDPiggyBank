@@ -12,7 +12,7 @@ namespace RFIDPiggyBank
     [Serializable]
     public class Card
     {
-
+        public const string DEFAULT_NAME = "Badge";
         private string _name;
         private string _uid;
 

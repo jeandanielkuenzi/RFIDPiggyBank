@@ -3,7 +3,7 @@
   <Class Name="RFIDPiggyBank.ServoMotor">
     <Position X="6" Y="6.5" Width="2.25" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
       <HashCode>gAAUAAAAAAAAAAABAAABAAAABAAAAABAQAAAAAAAAAA=</HashCode>
@@ -11,9 +11,9 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RFIDPiggyBank.SDCard">
-    <Position X="12.75" Y="5.75" Width="2.75" />
+    <Position X="12.75" Y="3" Width="2.75" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
       <HashCode>AAAFAAAAAAAAAAAAAAABAAAABAABAAAAQAAAAAgAAAA=</HashCode>
@@ -23,7 +23,7 @@
   <Class Name="RFIDPiggyBank.RFIDReader">
     <Position X="6" Y="3.5" Width="4.75" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
       <HashCode>ABCEAAAAAAAABAgCAQAAAAAABAAAAAAQAAAAAAAAACA=</HashCode>
@@ -33,40 +33,45 @@
   <Class Name="RFIDPiggyBank.Program">
     <Position X="0.5" Y="0.5" Width="5.25" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
       <Compartment Name="Nested Types" Collapsed="false" />
     </Compartments>
     <NestedTypes>
-      <Enum Name="RFIDPiggyBank.Program.MENU_ETAT">
+      <Enum Name="RFIDPiggyBank.Program.MENU_STATE" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Program.cs</NewMemberFileName>
         </TypeIdentifier>
       </Enum>
-      <Enum Name="RFIDPiggyBank.Program.SERVO_ETAT">
+      <Enum Name="RFIDPiggyBank.Program.SERVO_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.SECRET_CODE" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Program.cs</NewMemberFileName>
         </TypeIdentifier>
       </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>IAgAAABgIAAAAQAJABEAAYAIAAAIAABgAoAQRCAAAUg=</HashCode>
+      <HashCode>IAgAIgBgIAAAAAAJIBkAAZgIEAAMAABgAoAAxCAABUk=</HashCode>
       <FileName>Program.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RFIDPiggyBank.ListOfCards">
     <Position X="12.75" Y="0.5" Width="3.5" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAEAEIAAAAAAAAAAAAAAgAABAAAAAAAQAAQAgAAAAA=</HashCode>
+      <HashCode>AABEAEIAAAAAAAAAAAAAAgAABAAAAAAAQAAQAgAAAAA=</HashCode>
       <FileName>ListOfCards.cs</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RFIDPiggyBank.LCD">
     <Position X="6" Y="0.5" Width="6.25" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
       <HashCode>CAAFAAAAAAAAICCAAAAAAAAAFAAAAAAAQAAAAABAAAA=</HashCode>
@@ -74,9 +79,9 @@
     </TypeIdentifier>
   </Class>
   <Class Name="RFIDPiggyBank.Card">
-    <Position X="12.75" Y="3.5" Width="2.5" />
+    <Position X="11.25" Y="5.75" Width="2.5" />
     <Compartments>
-      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
       <HashCode>AAAAIAAAAAAAAAAAABEAAAQABAAAAAAAAAAAAAAAAAA=</HashCode>

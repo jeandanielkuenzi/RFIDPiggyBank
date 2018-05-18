@@ -35,6 +35,8 @@ namespace RFIDPiggyBank
 
             _lcdWidth = _lcd.Width;
             _lcdHeight = _lcd.Height;
+            _lcd.BacklightEnabled = true;
+            _lcd.SimpleGraphics.BackgroundColor = Gadgeteer.Color.White;
         }
 
         public static LCD Instance

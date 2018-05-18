@@ -36,12 +36,12 @@ namespace RFIDPiggyBank
         private GTM.GHIElectronics.SDCard _sdCard;
 
         /// <summary>
-        /// The instance of the classe SDCard (Not the SDCard module from Gadgeteer)
+        /// The instance of the class SDCard (Not the SDCard module from Gadgeteer)
         /// </summary>
         private static SDCard _instance;
 
         /// <summary>
-        /// The constructor of the classe, he's private because the classe use the design pattern Singleton
+        /// The constructor of the class, he's private because the class use the design pattern Singleton
         /// </summary>
         private SDCard()
         {
@@ -49,7 +49,7 @@ namespace RFIDPiggyBank
         }
 
         /// <summary>
-        /// Getter for the instance of the classe
+        /// Getter for the instance of the class
         /// </summary>
         public static SDCard Instance
         {
@@ -59,7 +59,7 @@ namespace RFIDPiggyBank
         /// <summary>
         /// Method that allow access to the class
         /// </summary>
-        /// <returns>Instance of the classe SDCard</returns>
+        /// <returns>Instance of the class SDCard</returns>
         public static SDCard GetInstance()
         {
             if (_instance == null)

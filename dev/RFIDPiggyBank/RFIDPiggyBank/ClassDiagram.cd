@@ -12,9 +12,6 @@
   </Class>
   <Class Name="RFIDPiggyBank.SDCard">
     <Position X="12.75" Y="3" Width="2.75" />
-    <Compartments>
-      <Compartment Name="Methods" Collapsed="true" />
-    </Compartments>
     <TypeIdentifier>
       <HashCode>AAAFAAAAAAAAAAAAAAABAAAABAABAAAAQAAAAAgAAAA=</HashCode>
       <FileName>SDCard.cs</FileName>
@@ -52,7 +49,7 @@
           <NewMemberFileName>Program.cs</NewMemberFileName>
         </TypeIdentifier>
       </Enum>
-      <Enum Name="RFIDPiggyBank.Program.SUB_STATE" Collapsed="true">
+      <Enum Name="RFIDPiggyBank.Program.SCAN_CARD_STATE" Collapsed="true">
         <TypeIdentifier>
           <NewMemberFileName>Program.cs</NewMemberFileName>
         </TypeIdentifier>
@@ -62,9 +59,19 @@
           <NewMemberFileName>Program.cs</NewMemberFileName>
         </TypeIdentifier>
       </Enum>
+      <Enum Name="RFIDPiggyBank.Program.DISPLAY_CARDS_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.DELETE_CARD_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>IAgAIABgAACAAAAJIBECAZgIEAAUAABgAoAAzCBABU0=</HashCode>
+      <HashCode>IAgAIABgABCAAAAJIBECAZgIEAAUAABkAoAAzCAQBU0=</HashCode>
       <FileName>Program.cs</FileName>
     </TypeIdentifier>
   </Class>
@@ -88,8 +95,8 @@
       <FileName>LCD.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="RFIDPiggyBank.Card">
-    <Position X="11.25" Y="5.75" Width="2.5" />
+  <Class Name="RFIDPiggyBank.Card" Collapsed="true">
+    <Position X="16.25" Y="3.75" Width="2.5" />
     <Compartments>
       <Compartment Name="Methods" Collapsed="true" />
     </Compartments>

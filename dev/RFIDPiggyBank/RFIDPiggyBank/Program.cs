@@ -41,11 +41,11 @@ namespace RFIDPiggyBank
         /// </summary>
         private enum SECRET_CODE { up1, up2, down1, down2, left1, right1, left2, right2, success, error };
 
-        private enum SUB_STATE { waitRFID, RFIDDetected, RFIDValid, RFIDInvalid };
+        private enum SCAN_CARD_STATE { waitRFID, RFIDDetected, RFIDValid, RFIDInvalid };
 
         private enum ADD_CARD_STATE { waitRFID, RFIDDetected, badgeExist, bageDontExist, save, errorMSG, successMSG };
 
-        private enum DISPLAY_CARDS_SATE { listIsEmpty, errorMSG, displayAllCards };
+        private enum DISPLAY_CARDS_STATE { listIsEmpty, errorMSG, displayAllCards };
 
         private enum DELETE_CARD_STATE { listIsEmpty, selectCard, save, errorMSG, success };
 
@@ -75,9 +75,9 @@ namespace RFIDPiggyBank
         private MENU_STATE _menuState = MENU_STATE.initial;
         private SERVO_STATE _servoState = SERVO_STATE.close;
         private SECRET_CODE _secretState = SECRET_CODE.up1;
-        private SUB_STATE _subState = SUB_STATE.waitRFID;
+        private SCAN_CARD_STATE _scanCardState = SCAN_CARD_STATE.waitRFID;
         private ADD_CARD_STATE _addCardState = ADD_CARD_STATE.waitRFID;
-        private DISPLAY_CARDS_SATE _displayCardsState = DISPLAY_CARDS_SATE.listIsEmpty;
+        private DISPLAY_CARDS_STATE _displayCardsState = DISPLAY_CARDS_STATE.listIsEmpty;
         private DELETE_CARD_STATE _deleteCardState = DELETE_CARD_STATE.listIsEmpty;
 
         /// <summary>
@@ -220,9 +220,9 @@ namespace RFIDPiggyBank
             _menuState = MENU_STATE.initial;
             _servoState = SERVO_STATE.close;
             _secretState = SECRET_CODE.up1;
-            _subState = SUB_STATE.waitRFID;
+            _scanCardState = SCAN_CARD_STATE.waitRFID;
             _addCardState = ADD_CARD_STATE.waitRFID;
-            _displayCardsState = DISPLAY_CARDS_SATE.listIsEmpty;
+            _displayCardsState = DISPLAY_CARDS_STATE.listIsEmpty;
             _deleteCardState = DELETE_CARD_STATE.listIsEmpty;
 
             LCDTextField.Content = Card.DEFAULT_NAME;
@@ -293,48 +293,48 @@ namespace RFIDPiggyBank
         /// </summary>
         private void InitialState()
         {
-            switch (_subState)
+            switch (_scanCardState)
             {
-                case SUB_STATE.waitRFID:
+                case SCAN_CARD_STATE.waitRFID:
                     if (RFIDReader.GetInstance().IsBadgeScan)
                     {
-                        _subState = SUB_STATE.RFIDDetected;
+                        _scanCardState = SCAN_CARD_STATE.RFIDDetected;
                     }
                     break;
-                case SUB_STATE.RFIDDetected:
+                case SCAN_CARD_STATE.RFIDDetected:
                     if (_servoState == SERVO_STATE.close)
                     {
                         bool isValid = ListOfCards.GetInstance().FindCardInlist(RFIDReader.GetInstance().CurrentUid);
                         if (isValid)
                         {
-                            _subState = SUB_STATE.RFIDValid;
+                            _scanCardState = SCAN_CARD_STATE.RFIDValid;
                         }
                         else
                         {
-                            _subState = SUB_STATE.RFIDInvalid;
+                            _scanCardState = SCAN_CARD_STATE.RFIDInvalid;
                         }
                     }
                     else
                     {
-                        _subState = SUB_STATE.RFIDInvalid;
+                        _scanCardState = SCAN_CARD_STATE.RFIDInvalid;
                     }
                     break;
-                case SUB_STATE.RFIDValid:
+                case SCAN_CARD_STATE.RFIDValid:
                     ServoMotor.GetInstance().Unlock();
-                    _subState = SUB_STATE.waitRFID;
+                    _scanCardState = SCAN_CARD_STATE.waitRFID;
                     _servoState = SERVO_STATE.open;
                     _secuTimer.Start();
                     DeleteCurrentBadgescan();
                     break;
-                case SUB_STATE.RFIDInvalid:
+                case SCAN_CARD_STATE.RFIDInvalid:
                     ServoMotor.GetInstance().Lock();
-                    _subState = SUB_STATE.waitRFID;
+                    _scanCardState = SCAN_CARD_STATE.waitRFID;
                     _servoState = SERVO_STATE.close;
                     _secuTimer.Stop();
                     DeleteCurrentBadgescan();
                     break;
                 default:
-                    _subState = SUB_STATE.waitRFID;
+                    _scanCardState = SCAN_CARD_STATE.waitRFID;
                     break;
             }
 
@@ -582,23 +582,23 @@ namespace RFIDPiggyBank
         {
             switch (_displayCardsState)
             {
-                case DISPLAY_CARDS_SATE.listIsEmpty:
+                case DISPLAY_CARDS_STATE.listIsEmpty:
                     LCD.GetInstance().Clear();
                     if (ListOfCards.GetInstance().IsEmpty())
                     {
-                        _displayCardsState = DISPLAY_CARDS_SATE.errorMSG;
+                        _displayCardsState = DISPLAY_CARDS_STATE.errorMSG;
                     }
                     else
                     {
-                        _displayCardsState = DISPLAY_CARDS_SATE.displayAllCards;
+                        _displayCardsState = DISPLAY_CARDS_STATE.displayAllCards;
                     }
                     break;
-                case DISPLAY_CARDS_SATE.errorMSG:
+                case DISPLAY_CARDS_STATE.errorMSG:
                     LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Aucun badge n'est enregistre /!\\", 10, LCD.GetInstance().LcdHeight / 2);
                     Thread.Sleep(2000);
                     RestoreInitialState();
                     break;
-                case DISPLAY_CARDS_SATE.displayAllCards:
+                case DISPLAY_CARDS_STATE.displayAllCards:
                     int positionY = 10;
                     LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour quitter, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 20);
 
@@ -614,7 +614,7 @@ namespace RFIDPiggyBank
                     }
                     break;
                 default:
-                    _displayCardsState = DISPLAY_CARDS_SATE.listIsEmpty;
+                    _displayCardsState = DISPLAY_CARDS_STATE.listIsEmpty;
                     break;
             }
         }

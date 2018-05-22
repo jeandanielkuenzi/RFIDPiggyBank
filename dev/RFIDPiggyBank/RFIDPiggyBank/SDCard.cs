@@ -36,7 +36,7 @@ namespace RFIDPiggyBank
         private GTM.GHIElectronics.SDCard _sdCard;
 
         /// <summary>
-        /// The instance of the class SDCard (Not the SDCard module from Gadgeteer)
+        /// The instance of the class SDCard (Not the SDCard module from GHI)
         /// </summary>
         private static SDCard _instance;
 

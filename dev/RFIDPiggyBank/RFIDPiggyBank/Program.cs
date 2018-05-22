@@ -41,6 +41,14 @@ namespace RFIDPiggyBank
         /// </summary>
         private enum SECRET_CODE { up1, up2, down1, down2, left1, right1, left2, right2, success, error };
 
+        private enum SUB_STATE { waitRFID, RFIDDetected, RFIDValid, RFIDInvalid };
+
+        private enum ADD_CARD_STATE { waitRFID, RFIDDetected, badgeExist, bageDontExist, save, errorMSG, successMSG };
+
+        private enum DISPLAY_CARDS_SATE { listIsEmpty, errorMSG, displayAllCards };
+
+        private enum DELETE_CARD_STATE { listIsEmpty, selectCard, save, errorMSG, success };
+
         /// <summary>
         /// Constant for the menu position on the LCD
         /// </summary>
@@ -52,28 +60,30 @@ namespace RFIDPiggyBank
         /// <summary>
         /// Constant of the value when the joystick is up or right
         /// </summary>
-        private const double JOYSTICK_UP_RIGHT = 0.2;
+        private const double JOYSTICK_UP_RIGHT = 0.4;
 
         /// <summary>
         /// Constant of the value if the joystick is down ot left
         /// </summary>
-        private const double JOYSTICK_DOWN_LEFT = 0.8;
+        private const double JOYSTICK_DOWN_LEFT = 0.6;
 
         /// <summary>
         /// This is the logic version of the main menu
         /// </summary>
         private int _menu = 0;
 
-        private MENU_STATE Menu = MENU_STATE.initial;
-        private SERVO_STATE Servo = SERVO_STATE.close;
-        private SECRET_CODE secretState = SECRET_CODE.up1;
+        private MENU_STATE _menuState = MENU_STATE.initial;
+        private SERVO_STATE _servoState = SERVO_STATE.close;
+        private SECRET_CODE _secretState = SECRET_CODE.up1;
+        private SUB_STATE _subState = SUB_STATE.waitRFID;
+        private ADD_CARD_STATE _addCardState = ADD_CARD_STATE.waitRFID;
+        private DISPLAY_CARDS_SATE _displayCardsState = DISPLAY_CARDS_SATE.listIsEmpty;
+        private DELETE_CARD_STATE _deleteCardState = DELETE_CARD_STATE.listIsEmpty;
 
         /// <summary>
         /// 90000ms = 1min30 -> this is the secure timer if we have forgotten to close the box
         /// </summary>
         private GT.Timer _secuTimer = new GT.Timer(90000);
-
-        private const string DEFAULT_NAME = Card.DEFAULT_NAME;
 
         private AnalogInput _joystickX = new AnalogInput(FEZSpider.Socket9.AnalogInput4); // Le potentiomètre du joystick sur l'axe X
         private AnalogInput _joystickY = new AnalogInput(FEZSpider.Socket9.AnalogInput5); // Le potentiomètre du joystick sur l'axe Y
@@ -104,29 +114,38 @@ namespace RFIDPiggyBank
             ServoMotor.GetInstance().Lock();
         }
 
+        /// <summary>
+        /// This timer event serves as the main sequencer of the program
+        /// </summary>
+        /// <param name="pbTimer">The GT.Timer who's calling (GT = Gadgeteer)</param>
         private void timer_Tick(GT.Timer pbTimer)
         {
-            if (Menu == MENU_STATE.initial)
+            // Main menu
+            if (_menuState == MENU_STATE.initial)
             {
                 InitialState();
             }
 
-            if (Menu == MENU_STATE.addCard)
+            // Add card event
+            if (_menuState == MENU_STATE.addCard)
             {
                 AddCard();
             }
 
-            if (Menu == MENU_STATE.deleteCard)
+            // Delete card event
+            if (_menuState == MENU_STATE.deleteCard)
             {
                 DeleteCard();
             }
 
-            if (Menu == MENU_STATE.displayCards)
+            // Display cards event
+            if (_menuState == MENU_STATE.displayCards)
             {
                 DisplayCards();
             }
 
-            if (Menu == MENU_STATE.secretCode)
+            // Unlock with the secret code event
+            if (_menuState == MENU_STATE.secretCode)
             {
                 UnlockSecretCode();
             }
@@ -145,32 +164,38 @@ namespace RFIDPiggyBank
             {
                 ListOfCards.GetInstance().CardsList = new ArrayList();
             }
-            RestoreInitialEtat();
+            RestoreInitialState();
         }
 
+        /// <summary>
+        /// This method interrupt all threads when the joystick is press
+        /// </summary>
+        /// <param name="pbData1"></param>
+        /// <param name="pbData2"></param>
+        /// <param name="pbTime"></param>
         private void _joystickButton_OnInterrupt(uint pbData1, uint pbData2, DateTime pbTime)
         {
-            if (Menu == MENU_STATE.initial)
+            if (_menuState == MENU_STATE.initial)
             {
                 switch (_menu)
                 {
                     case 0:
-                        Menu = MENU_STATE.initial;
+                        _menuState = MENU_STATE.initial;
                         break;
                     case 1:
-                        Menu = MENU_STATE.addCard;
+                        _menuState = MENU_STATE.addCard;
                         break;
                     case 2:
-                        Menu = MENU_STATE.deleteCard;
+                        _menuState = MENU_STATE.deleteCard;
                         break;
                     case 3:
-                        Menu = MENU_STATE.displayCards;
+                        _menuState = MENU_STATE.displayCards;
                         break;
                     case 4:
-                        Menu = MENU_STATE.secretCode;
+                        _menuState = MENU_STATE.secretCode;
                         break;
                     default:
-                        Menu = MENU_STATE.initial;
+                        _menuState = MENU_STATE.initial;
                         break;
                 }
                 DeleteCurrentBadgescan();
@@ -189,23 +214,33 @@ namespace RFIDPiggyBank
         /// <summary>
         /// This method restore to initial state (main menu)
         /// </summary>
-        private void RestoreInitialEtat()
+        private void RestoreInitialState()
         {
             _menu = 0;
-            Menu = MENU_STATE.initial;
+            _menuState = MENU_STATE.initial;
+            _servoState = SERVO_STATE.close;
+            _secretState = SECRET_CODE.up1;
+            _subState = SUB_STATE.waitRFID;
+            _addCardState = ADD_CARD_STATE.waitRFID;
+            _displayCardsState = DISPLAY_CARDS_SATE.listIsEmpty;
+            _deleteCardState = DELETE_CARD_STATE.listIsEmpty;
+
+            LCDTextField.Content = Card.DEFAULT_NAME;
+            LCDTextField.CursorPosition = 0;
+            LCDTextField.ShouldBeRefresh = true;
+
             DeleteCurrentBadgescan();
             LCD.GetInstance().Clear();
             DisplayMainMenu(_menu);
         }
 
         /// <summary>
-        /// This method display an error message and wait 2 seconds
+        /// This method display an error message on the lcd after clearing it
         /// </summary>
         private void DisplayError()
         {
             LCD.GetInstance().Clear();
             LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Une erreur est survenue /!\\", 10, LCD.GetInstance().LcdHeight - 20);
-            Thread.Sleep(2000);
         }
 
         /// <summary>
@@ -258,26 +293,51 @@ namespace RFIDPiggyBank
         /// </summary>
         private void InitialState()
         {
-            if (RFIDReader.GetInstance().IsBadgeScan)
+            switch (_subState)
             {
-                if (Servo == SERVO_STATE.close)
-                {
-                    bool isValid = ListOfCards.GetInstance().FindCardInlist(RFIDReader.GetInstance().CurrentUid);
-                    if (isValid)
+                case SUB_STATE.waitRFID:
+                    if (RFIDReader.GetInstance().IsBadgeScan)
                     {
-                        ServoMotor.GetInstance().Unlock();
-                        Servo = SERVO_STATE.open;
-                        _secuTimer.Start();
+                        _subState = SUB_STATE.RFIDDetected;
                     }
-                }
-                else
-                {
+                    break;
+                case SUB_STATE.RFIDDetected:
+                    if (_servoState == SERVO_STATE.close)
+                    {
+                        bool isValid = ListOfCards.GetInstance().FindCardInlist(RFIDReader.GetInstance().CurrentUid);
+                        if (isValid)
+                        {
+                            _subState = SUB_STATE.RFIDValid;
+                        }
+                        else
+                        {
+                            _subState = SUB_STATE.RFIDInvalid;
+                        }
+                    }
+                    else
+                    {
+                        _subState = SUB_STATE.RFIDInvalid;
+                    }
+                    break;
+                case SUB_STATE.RFIDValid:
+                    ServoMotor.GetInstance().Unlock();
+                    _subState = SUB_STATE.waitRFID;
+                    _servoState = SERVO_STATE.open;
+                    _secuTimer.Start();
+                    DeleteCurrentBadgescan();
+                    break;
+                case SUB_STATE.RFIDInvalid:
                     ServoMotor.GetInstance().Lock();
-                    Servo = SERVO_STATE.close;
+                    _subState = SUB_STATE.waitRFID;
+                    _servoState = SERVO_STATE.close;
                     _secuTimer.Stop();
-                }
-                DeleteCurrentBadgescan();
+                    DeleteCurrentBadgescan();
+                    break;
+                default:
+                    _subState = SUB_STATE.waitRFID;
+                    break;
             }
+
             if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
             {
                 _menu++;
@@ -305,96 +365,126 @@ namespace RFIDPiggyBank
         /// </summary>
         private void AddCard()
         {
-            LCD.GetInstance().Clear();
-            LCD.GetInstance().DisplayText(GT.Color.LightGray, "Veuillez approcher un badge du lecteur");
-            if (RFIDReader.GetInstance().IsBadgeScan)
+            switch (_addCardState)
             {
-                LCD.GetInstance().DisplayText(GT.Color.Green, "Votre badge a ete correctement scanne", 10, LCD.GetInstance().LcdHeight / 2);
-                Thread.Sleep(2000); // On attends 2 seconde
+                case ADD_CARD_STATE.waitRFID:
+                    LCD.GetInstance().Clear();
+                    LCD.GetInstance().DisplayText(GT.Color.LightGray, "Veuillez approcher un badge du lecteur");
+                    if (RFIDReader.GetInstance().IsBadgeScan)
+                    {
+                        _addCardState = ADD_CARD_STATE.RFIDDetected;
+                        LCD.GetInstance().DisplayText(GT.Color.Green, "Votre badge a ete correctement scanne", 10, LCD.GetInstance().LcdHeight / 2);
+                        Thread.Sleep(2000); // On attends 2 seconde
+                    }
+                    break;
+                case ADD_CARD_STATE.RFIDDetected:
+                    LCD.GetInstance().Clear();
+                    string uid = RFIDReader.GetInstance().CurrentUid;
 
-                LCD.GetInstance().Clear();
-                string uid = RFIDReader.GetInstance().CurrentUid;
-
-                if (ListOfCards.GetInstance().FindCardInlist(uid)) // Si le badge scanné existe déjà
-                {
+                    if (ListOfCards.GetInstance().FindCardInlist(uid)) // Si le badge scanné existe déjà
+                    {
+                        _addCardState = ADD_CARD_STATE.badgeExist;
+                    }
+                    else
+                    {
+                        _addCardState = ADD_CARD_STATE.bageDontExist;
+                    }
+                    break;
+                case ADD_CARD_STATE.badgeExist:
                     LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Erreur : Ce badge est deja sauvegarde /!\\", 10, LCD.GetInstance().LcdHeight / 2);
                     Thread.Sleep(2000); // On attends 2 secondes
-                }
-                else
-                {
-                    string name = DEFAULT_NAME;
-                    int charIndex = 0;
-                    char[] charArray = name.ToCharArray(); // On converti le string en tableau pour modifier les lettres
-                    bool isModify = true;
-                    do
+                    RestoreInitialState();
+                    break;
+                case ADD_CARD_STATE.bageDontExist:
+                    string name = LCDTextField.Content;
+                    char[] charArray = name.ToCharArray();
+                    int x = 110;
+                    if (LCDTextField.ShouldBeRefresh)
                     {
-                        int x = 110;
-                        if (isModify)
+                        LCD.GetInstance().Clear();
+                        LCD.GetInstance().DisplayText(GT.Color.Red, "Votre badge :", 10, LCD.GetInstance().LcdHeight / 2);
+                        LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour valider le nom, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 20);
+                        for (int i = 0; i < charArray.Length; i++)
                         {
-                            LCD.GetInstance().Clear();
-                            LCD.GetInstance().DisplayText(GT.Color.Red, "Votre badge :", 10, LCD.GetInstance().LcdHeight / 2);
-                            LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour valider le nom, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 20);
-                            for (int i = 0; i < charArray.Length; i++)
-                            {
-                                if (i == charIndex)
-                                    LCD.GetInstance().DisplayText(GT.Color.Black, charArray[i].ToString(), x, LCD.GetInstance().LcdHeight / 2);
-                                else
-                                    LCD.GetInstance().DisplayText(GT.Color.Gray, charArray[i].ToString(), x, LCD.GetInstance().LcdHeight / 2);
-                                x += 10;
-                            }
-                            isModify = false;
+                            if (i == LCDTextField.CursorPosition)
+                                LCD.GetInstance().DisplayText(GT.Color.Black, charArray[i].ToString(), x, LCD.GetInstance().LcdHeight / 2);
+                            else
+                                LCD.GetInstance().DisplayText(GT.Color.Gray, charArray[i].ToString(), x, LCD.GetInstance().LcdHeight / 2);
+                            x += 10;
                         }
+                        LCDTextField.ShouldBeRefresh = false;
+                    }
 
-                        if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
-                        {
-                            charArray[charIndex]++;
-                            isModify = true;
-                            Thread.Sleep(100); // On attends 0.1 seconde pour que les lettres ne défilent pas trop
-                        }
-                        else if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
-                        {
-                            charArray[charIndex]--;
-                            isModify = true;
-                            Thread.Sleep(100); // On attends 0.1 seconde pour que les lettres ne défilent pas trop
-                        }
+                    if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
+                    {
+                        charArray[LCDTextField.CursorPosition]++;
+                        LCDTextField.ShouldBeRefresh = true;
+                        Thread.Sleep(100); // On attends 0.1 seconde pour que les lettres ne défilent pas trop vite
+                    }
+                    else if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
+                    {
+                        charArray[LCDTextField.CursorPosition]--;
+                        LCDTextField.ShouldBeRefresh = true;
+                        Thread.Sleep(100); // On attends 0.1 seconde pour que les lettres ne défilent pas trop vite
+                    }
 
 
-                        if (_joystickY.Read() < JOYSTICK_UP_RIGHT)
+                    if (_joystickY.Read() < JOYSTICK_UP_RIGHT)
+                    {
+                        LCDTextField.CursorPosition++;
+                        if (LCDTextField.CursorPosition > name.Length - 1)
                         {
-                            charIndex++;
-                            if (charIndex > name.Length - 1)
-                            {
-                                charIndex = 0;
-                            }
-                            isModify = true;
-                            Thread.Sleep(200); // On attends 0.2 seconde pour que le curseur ne défile pas trop
+                            LCDTextField.CursorPosition = 0;
                         }
-                        else if (_joystickY.Read() > JOYSTICK_DOWN_LEFT)
+                        LCDTextField.ShouldBeRefresh = true;
+                        Thread.Sleep(200); // On attends 0.2 seconde pour que le curseur ne défile pas trop vite
+                    }
+                    else if (_joystickY.Read() > JOYSTICK_DOWN_LEFT)
+                    {
+                        LCDTextField.CursorPosition--;
+                        if (LCDTextField.CursorPosition < 0)
                         {
-                            charIndex--;
-                            if (charIndex < 0)
-                            {
-                                charIndex = name.Length - 1;
-                            }
-                            isModify = true;
-                            Thread.Sleep(200); // On attends 0.2 seconde pour que le curseur ne défile pas trop
+                            LCDTextField.CursorPosition = name.Length - 1;
                         }
-                    } while (_joystickButton.Read());
+                        LCDTextField.ShouldBeRefresh = true;
+                        Thread.Sleep(200); // On attends 0.2 seconde pour que le curseur ne défile pas trop vite
+                    }
 
+                    LCDTextField.Content = new string(charArray);
+
+                    if (!_joystickButton.Read())
+                    {
+                        _addCardState = ADD_CARD_STATE.save;
+                    }
+                    break;
+                case ADD_CARD_STATE.save:
                     try
                     {
-                        name = new string(charArray); // On remplace la variable name par les lettres du tableau
+                        uid = RFIDReader.GetInstance().CurrentUid;
+                        name = LCDTextField.Content; // On remplace la variable name par les lettres du tableau
                         ListOfCards.GetInstance().AddCardToList(name, uid);
-                        DisplaySave();
-                        LCD.GetInstance().DisplayText(GT.Color.Green, "Le badge a bien ete ajoute", 10, LCD.GetInstance().LcdHeight / 2);
                         SDCard.GetInstance().SaveCards(ListOfCards.GetInstance().CardsList);
+                        _addCardState = ADD_CARD_STATE.successMSG;
                     }
                     catch (Exception e)
                     {
-                        DisplayError();
+                        _addCardState = ADD_CARD_STATE.errorMSG;
                     }
-                }
-                RestoreInitialEtat();
+                    break;
+                case ADD_CARD_STATE.errorMSG:
+                    DisplayError();
+                    Thread.Sleep(2000);
+                    RestoreInitialState();
+                    break;
+                case ADD_CARD_STATE.successMSG:
+                    DisplaySave();
+                    LCD.GetInstance().DisplayText(GT.Color.Green, "Le badge a bien ete ajoute", 10, LCD.GetInstance().LcdHeight / 2);
+                    Thread.Sleep(2000);
+                    RestoreInitialState();
+                    break;
+                default:
+                    _addCardState = ADD_CARD_STATE.waitRFID;
+                    break;
             }
         }
 
@@ -403,65 +493,86 @@ namespace RFIDPiggyBank
         /// </summary>
         private void DeleteCard()
         {
-            LCD.GetInstance().Clear();
-            if (ListOfCards.GetInstance().IsEmpty())
-            {
-                LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Aucun badge n'est enregistre /!\\", 10, LCD.GetInstance().LcdHeight / 2);
-                Thread.Sleep(2000);
-            }
-            else
-            {
-                int positionY;
-                int index = 0;
-                int i;
 
-                do
-                {
-                    i = 0;
-                    positionY = 10;
-                    foreach (Card card in ListOfCards.GetInstance().CardsList)
+            switch (_deleteCardState)
+            {
+                case DELETE_CARD_STATE.listIsEmpty:
+                    LCD.GetInstance().Clear();
+                    if (ListOfCards.GetInstance().IsEmpty())
                     {
-                        if (index == i)
-                            LCD.GetInstance().DisplayText(GT.Color.Black, card.Name, 10, positionY);
-                        else
-                            LCD.GetInstance().DisplayText(GT.Color.Gray, card.Name, 10, positionY);
-                        positionY += 15;
-                        i++;
+                        LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Aucun badge n'est enregistre /!\\", 10, LCD.GetInstance().LcdHeight / 2);
+                        Thread.Sleep(2000);
+                        RestoreInitialState();
                     }
-                    LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour selectionner le badge, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 30);
-                    if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
+                    else
                     {
-                        index++;
-                        if (index > ListOfCards.GetInstance().CardsList.Count - 1)
+                        _deleteCardState = DELETE_CARD_STATE.selectCard;
+                    }
+                    break;
+                case DELETE_CARD_STATE.selectCard:
+                    int positionY = 10;
+                    int i = 0;
+                        positionY = 10;
+                        foreach (Card card in ListOfCards.GetInstance().CardsList)
                         {
-                            index = 0;
+                            if (LCDTextField.CursorPosition == i)
+                                LCD.GetInstance().DisplayText(GT.Color.Black, card.Name, 10, positionY);
+                            else
+                                LCD.GetInstance().DisplayText(GT.Color.Gray, card.Name, 10, positionY);
+                            positionY += 15;
+                            i++;
                         }
-                        Thread.Sleep(100);
-                    }
-                    else if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
-                    {
-                        index--;
-                        if (index < 0)
+                        LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour selectionner le badge, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 30);
+                        if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
                         {
-                            index = ListOfCards.GetInstance().CardsList.Count - 1;
+                            LCDTextField.CursorPosition++;
+                            if (LCDTextField.CursorPosition > ListOfCards.GetInstance().CardsList.Count - 1)
+                            {
+                                LCDTextField.CursorPosition = 0;
+                            }
+                            Thread.Sleep(100);
                         }
-                        Thread.Sleep(100);
+                        else if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
+                        {
+                            LCDTextField.CursorPosition--;
+                            if (LCDTextField.CursorPosition < 0)
+                            {
+                                LCDTextField.CursorPosition = ListOfCards.GetInstance().CardsList.Count - 1;
+                            }
+                            Thread.Sleep(100);
+                        }
+                        if (!_joystickButton.Read())
+                        {
+                            _deleteCardState = DELETE_CARD_STATE.save;
+                        }
+                    break;
+                case DELETE_CARD_STATE.save:
+                    try
+                    {
+                        ListOfCards.GetInstance().DeleteCardFromList(LCDTextField.CursorPosition);
+                        SDCard.GetInstance().SaveCards(ListOfCards.GetInstance().CardsList);
+                        _deleteCardState = DELETE_CARD_STATE.success;
                     }
-                } while (_joystickButton.Read());
-
-                try
-                {
-                    ListOfCards.GetInstance().DeleteCardFromList(index);
+                    catch (Exception e)
+                    {
+                        _deleteCardState = DELETE_CARD_STATE.errorMSG;
+                    }
+                    break;
+                case DELETE_CARD_STATE.errorMSG:
+                    DisplayError();
+                    Thread.Sleep(2000);
+                    RestoreInitialState();
+                    break;
+                case DELETE_CARD_STATE.success:
                     DisplaySave();
                     LCD.GetInstance().DisplayText(GT.Color.Green, "Le badge a bien ete supprime", 10, LCD.GetInstance().LcdHeight / 2);
-                    SDCard.GetInstance().SaveCards(ListOfCards.GetInstance().CardsList);
-                }
-                catch (Exception e)
-                {
-                    DisplayError();
-                }
+                    Thread.Sleep(2000);
+                    RestoreInitialState();
+                    break;
+                default:
+                    _deleteCardState = DELETE_CARD_STATE.listIsEmpty;
+                    break;
             }
-            RestoreInitialEtat();
         }
 
         /// <summary>
@@ -469,28 +580,43 @@ namespace RFIDPiggyBank
         /// </summary>
         private void DisplayCards()
         {
-            LCD.GetInstance().Clear();
-            if (ListOfCards.GetInstance().IsEmpty())
+            switch (_displayCardsState)
             {
-                LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Aucun badge n'est enregistre /!\\", 10, LCD.GetInstance().LcdHeight / 2);
-                Thread.Sleep(2000);
-            }
-            else
-            {
-                int positionY = 10;
-
-                foreach (Card card in ListOfCards.GetInstance().CardsList)
-                {
-                    LCD.GetInstance().DisplayText(GT.Color.Gray, card.Name, 10, positionY);
-                    positionY += 15;
-                }
-
-                do
-                {
+                case DISPLAY_CARDS_SATE.listIsEmpty:
+                    LCD.GetInstance().Clear();
+                    if (ListOfCards.GetInstance().IsEmpty())
+                    {
+                        _displayCardsState = DISPLAY_CARDS_SATE.errorMSG;
+                    }
+                    else
+                    {
+                        _displayCardsState = DISPLAY_CARDS_SATE.displayAllCards;
+                    }
+                    break;
+                case DISPLAY_CARDS_SATE.errorMSG:
+                    LCD.GetInstance().DisplayText(GT.Color.Red, "/!\\ Aucun badge n'est enregistre /!\\", 10, LCD.GetInstance().LcdHeight / 2);
+                    Thread.Sleep(2000);
+                    RestoreInitialState();
+                    break;
+                case DISPLAY_CARDS_SATE.displayAllCards:
+                    int positionY = 10;
                     LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour quitter, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 20);
-                } while (_joystickButton.Read());
+
+                    foreach (Card card in ListOfCards.GetInstance().CardsList)
+                    {
+                        LCD.GetInstance().DisplayText(GT.Color.Gray, card.Name, 10, positionY);
+                        positionY += 15;
+                    }
+
+                    if (!_joystickButton.Read())
+                    {
+                        RestoreInitialState();
+                    }
+                    break;
+                default:
+                    _displayCardsState = DISPLAY_CARDS_SATE.listIsEmpty;
+                    break;
             }
-            RestoreInitialEtat();
         }
 
         /// <summary>
@@ -499,83 +625,125 @@ namespace RFIDPiggyBank
         private void UnlockSecretCode()
         {
             LCD.GetInstance().Clear();
+            bool success = false;
 
-            bool oldJoystickread = (_joystickX.Read() > 0.4 && _joystickX.Read() < 0.6);
-            Thread.Sleep(200);
-            bool joystickRead = (_joystickX.Read() < 0.4 || _joystickX.Read() > 0.6);
-
-            bool joystickEvent = (_oldJoystickRead && joystickRead);
-            if (joystickEvent)
+            do
             {
-                LCD.GetInstance().Clear();
-                switch (secretState)
+                LCD.GetInstance().DisplayText(GT.Color.LightGray, "Pour quitter, appuyer sur le joystick", 10, LCD.GetInstance().LcdHeight - 20);
+                bool oldJoystickread = ((_joystickX.Read() > JOYSTICK_UP_RIGHT && _joystickX.Read() < JOYSTICK_DOWN_LEFT) && (_joystickY.Read() > JOYSTICK_UP_RIGHT && _joystickY.Read() < JOYSTICK_DOWN_LEFT));
+                Thread.Sleep(200);
+                bool joystickRead = ((_joystickX.Read() < JOYSTICK_UP_RIGHT || _joystickX.Read() > JOYSTICK_DOWN_LEFT) || (_joystickY.Read() < JOYSTICK_UP_RIGHT || _joystickY.Read() > JOYSTICK_DOWN_LEFT));
+
+                if ((oldJoystickread && joystickRead) || _secretState == SECRET_CODE.success)
                 {
-                    case SECRET_CODE.up1:
-                        if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
-                        {
-                            secretState = SECRET_CODE.up2;
-                            Debug.Print("1");
-                        }
-                        else
-                        {
-                            secretState = SECRET_CODE.error;
-                        }
-                        break;
-                    case SECRET_CODE.up2:
-                        if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
-                        {
-                            secretState = SECRET_CODE.down1;
-                            Debug.Print("2");
-                        }
-                        else
-                        {
-                            secretState = SECRET_CODE.error;
-                        }
-                        break;
-                    case SECRET_CODE.down1:
-                        if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
-                        {
-                            secretState = SECRET_CODE.down2;
-                            Debug.Print("3");
-                        }
-                        else
-                        {
-                            secretState = SECRET_CODE.error;
-                        }
-                        break;
-                    case SECRET_CODE.down2:
-                        if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
-                        {
-                            secretState = SECRET_CODE.left1;
-                            Debug.Print("4");
-                        }
-                        else
-                        {
-                            secretState = SECRET_CODE.error;
-                        }
-                        break;
-                    case SECRET_CODE.left1:
-                        ServoMotor.GetInstance().Unlock();
-                        break;
-                    case SECRET_CODE.right1:
-                        break;
-                    case SECRET_CODE.left2:
-                        break;
-                    case SECRET_CODE.right2:
-                        break;
-                    case SECRET_CODE.success:
-                        break;
-                    case SECRET_CODE.error:
-                        secretState = SECRET_CODE.up1;
-                        LCD.GetInstance().Clear();
-                        LCD.GetInstance().DisplayText(GT.Color.Red, "Code faux");
-                        Thread.Sleep(1000);
-                        break;
-                    default:
-                        secretState = SECRET_CODE.up1;
-                        break;
+                    LCD.GetInstance().Clear();
+                    switch (_secretState)
+                    {
+                        case SECRET_CODE.up1:
+                            if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
+                            {
+                                _secretState = SECRET_CODE.up2;
+                                Debug.Print("1");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.up2:
+                            if (_joystickX.Read() < JOYSTICK_UP_RIGHT)
+                            {
+                                _secretState = SECRET_CODE.down1;
+                                Debug.Print("2");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.down1:
+                            if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
+                            {
+                                _secretState = SECRET_CODE.down2;
+                                Debug.Print("3");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.down2:
+                            if (_joystickX.Read() > JOYSTICK_DOWN_LEFT)
+                            {
+                                _secretState = SECRET_CODE.left1;
+                                Debug.Print("4");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.left1:
+                            if (_joystickY.Read() > JOYSTICK_DOWN_LEFT)
+                            {
+                                _secretState = SECRET_CODE.right1;
+                                Debug.Print("5");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.right1:
+                            if (_joystickY.Read() < JOYSTICK_UP_RIGHT)
+                            {
+                                _secretState = SECRET_CODE.left2;
+                                Debug.Print("6");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.left2:
+                            if (_joystickY.Read() > JOYSTICK_DOWN_LEFT)
+                            {
+                                _secretState = SECRET_CODE.right2;
+                                Debug.Print("7");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.right2:
+                            if (_joystickY.Read() < JOYSTICK_UP_RIGHT)
+                            {
+                                _secretState = SECRET_CODE.success;
+                                Debug.Print("8");
+                            }
+                            else
+                            {
+                                _secretState = SECRET_CODE.error;
+                            }
+                            break;
+                        case SECRET_CODE.success:
+                            ServoMotor.GetInstance().Unlock();
+                            success = true;
+                            break;
+                        case SECRET_CODE.error:
+                            _secretState = SECRET_CODE.up1;
+                            LCD.GetInstance().DisplayText(GT.Color.Red, "Code faux, veuillez recommencer");
+                            LCD.GetInstance().Clear();
+                            Thread.Sleep(1000);
+                            break;
+                        default:
+                            _secretState = SECRET_CODE.up1;
+                            break;
+                    }
                 }
-            }
+            } while (_joystickButton.Read() && !success);
+            RestoreInitialState();
         }
     }
 }

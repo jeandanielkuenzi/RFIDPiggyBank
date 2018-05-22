@@ -1,7 +1,7 @@
 /*
  * Author   : Küenzi Jean-Daniel
  * Date     : 09.05.2018
- * Desc.    : Classe qui va gérer le RFIDModule de GHI
+ * Desc.    : Class thaht handles the RFID module from GHI
  * Version  : 1.0.0
  */
 using System;
@@ -15,9 +15,14 @@ namespace RFIDPiggyBank
 {
     public class RFIDReader
     {
+        /// <summary>
+        /// The instance of the class RFIDReader (Not the RFID Reader module from GHI)
+        /// </summary>
         private static RFIDReader _instance;
 
-        //<summary>The RFID Reader module using socket 8 of the mainboard.</summary>
+        /// <summary>
+        /// The RFID Reader module using socket 8 of the mainboard
+        /// </summary>
         private Gadgeteer.Modules.GHIElectronics.RFIDReader _rfidReader;
         private bool _isBadgeScan;
         private string _currentUid;

@@ -41,8 +41,8 @@
   <ItemGroup>
     <Compile Include="Card.cs" />
     <Compile Include="LCD.cs" />
+    <Compile Include="LCDTextField.cs" />
     <Compile Include="ListOfCards.cs" />
-    <Compile Include="MENU_STATE.cs" />
     <Compile Include="Program.generated.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

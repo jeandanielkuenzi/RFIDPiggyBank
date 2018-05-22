@@ -52,9 +52,19 @@
           <NewMemberFileName>Program.cs</NewMemberFileName>
         </TypeIdentifier>
       </Enum>
+      <Enum Name="RFIDPiggyBank.Program.SUB_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.ADD_CARD_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>IAgAIgBgIAAAAAAJIBkAAZgIEAAMAABgAoAAxCAABUk=</HashCode>
+      <HashCode>IAgAIABgAACAAAAJIBECAZgIEAAUAABgAoAAzCBABU0=</HashCode>
       <FileName>Program.cs</FileName>
     </TypeIdentifier>
   </Class>

@@ -40,9 +40,8 @@
   <Import Project="$(NetMfTargetsBaseDir)$(TargetFrameworkVersion)\CSharp.Targets" />
   <ItemGroup>
     <Compile Include="Card.cs" />
-    <Compile Include="DISPLAY_CARDS_STATE.cs" />
     <Compile Include="LCD.cs" />
-    <Compile Include="LCDTextField.cs" />
+    <Compile Include="LCDTextFields.cs" />
     <Compile Include="ListOfCards.cs" />
     <Compile Include="Program.generated.cs">
       <AutoGen>True</AutoGen>

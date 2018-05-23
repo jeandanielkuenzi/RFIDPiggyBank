@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GTM.GHIElectronics.RFIDReader</name>
+    </assembly>
+    <members>
+        <member name="T:Gadgeteer.Modules.GHIElectronics.RFIDReader">
+            <summary>An RFIDReader module for Microsoft .NET Gadgeteer</summary>
+        </member>
+        <member name="M:Gadgeteer.Modules.GHIElectronics.RFIDReader.#ctor(System.Int32)">
+            <summary>Constructs a new instance.</summary>
+            <param name="socketNumber">The socket that this module is plugged in to.</param>
+        </member>
+        <member name="E:Gadgeteer.Modules.GHIElectronics.RFIDReader.IdReceived">
+            <summary>Raised when the module receives an id.</summary>
+        </member>
+        <member name="E:Gadgeteer.Modules.GHIElectronics.RFIDReader.MalformedIdReceived">
+            <summary>Raised when the module receives an id with an incorrect checksum.</summary>
+        </member>
+        <member name="T:Gadgeteer.Modules.GHIElectronics.RFIDReader.IdReceivedEventHandler">
+            <summary>The delegate that is used to handle the id received event.</summary>
+            <param name="sender">The object that raised the event.</param>
+            <param name="e">The event arguments.</param>
+        </member>
+        <member name="T:Gadgeteer.Modules.GHIElectronics.RFIDReader.MalformedIdReceivedEventHandler">
+            <summary>The delegate that is used to handle the bad checksum event.</summary>
+            <param name="sender">The object that raised the event.</param>
+            <param name="e">The event arguments.</param>
+        </member>
+    </members>
+</doc>

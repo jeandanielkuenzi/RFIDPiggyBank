@@ -7,8 +7,6 @@
 using System;
 using System.IO;
 using System.Collections;
-using System.Ext.Xml;
-using System.Xml;
 using System.Threading;
 
 using Microsoft.SPOT;
@@ -85,17 +83,24 @@ namespace RFIDPiggyBank
                 Debug.Print("Veuillez attendre que la carte soit montée");
             } while (!_sdCard.IsCardMounted); // We wait that the SD card is correctly mounted
 
-            string sdPath = VolumeInfo.GetVolumes()[0].RootDirectory; // Get the path to the storage
-
-            FileStream writer = new FileStream(sdPath + @"\" + FILE_NAME, FileMode.Create, FileAccess.Write);
-
-            if (pbList is ArrayList)
+            try
             {
-                byte[] SerializedData = Reflection.Serialize(pbList, typeof(ArrayList));
-                writer.Write(SerializedData, 0, SerializedData.Length);
-            }
+                string sdPath = VolumeInfo.GetVolumes()[0].RootDirectory; // Get the path to the storage
 
-            writer.Close();
+                FileStream writer = new FileStream(sdPath + @"\" + FILE_NAME, FileMode.Create, FileAccess.Write);
+
+                if (pbList is ArrayList)
+                {
+                    byte[] SerializedData = Reflection.Serialize(pbList, typeof(ArrayList));
+                    writer.Write(SerializedData, 0, SerializedData.Length);
+                }
+
+                writer.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+            }
 
             if (_sdCard.IsCardMounted) // If the card is mounted
             {
@@ -119,20 +124,28 @@ namespace RFIDPiggyBank
                 Debug.Print("Veuillez attendre que la carte soit montée");
             } while (!_sdCard.IsCardMounted); // We wait that the SD card is correctly mounted
 
-            string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
-
-            FileStream reader = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Open, FileAccess.Read);
-
-            byte[] SerializedData = new byte[reader.Length];
-            reader.Read(SerializedData, 0, SerializedData.Length);
-
             ArrayList list = null;
 
-            list = (ArrayList)Reflection.Deserialize(SerializedData, typeof(ArrayList));
-
-            if (_sdCard.IsCardMounted) // If the card is mounted
+            try
             {
-                _sdCard.Unmount(); // Unmount the card
+                string rootDirectory = VolumeInfo.GetVolumes()[0].RootDirectory;
+
+                FileStream reader = new FileStream(rootDirectory + @"\" + FILE_NAME, FileMode.Open, FileAccess.Read);
+
+                byte[] SerializedData = new byte[reader.Length];
+                reader.Read(SerializedData, 0, SerializedData.Length);
+
+                list = (ArrayList)Reflection.Deserialize(SerializedData, typeof(ArrayList));
+
+                if (_sdCard.IsCardMounted) // If the card is mounted
+                {
+                    _sdCard.Unmount(); // Unmount the card
+                }
+            }
+            catch (Exception e)
+            {
+                list = new ArrayList();
+                Debug.Print(e.ToString());
             }
 
             return list;

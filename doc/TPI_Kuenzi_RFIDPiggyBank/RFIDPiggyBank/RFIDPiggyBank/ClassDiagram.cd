@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="RFIDPiggyBank.ServoMotor">
+    <Position X="6" Y="6.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>gAAUAAAAAAAAAAABAAABAAAABAAAAABAQAAAAAAAAAA=</HashCode>
+      <FileName>ServoMotor.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RFIDPiggyBank.SDCard">
+    <Position X="12.75" Y="3" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAFAAAAAAAAAAAAAAABAAAABAABAAAAQAAAAAgAAAA=</HashCode>
+      <FileName>SDCard.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RFIDPiggyBank.RFIDReader">
+    <Position X="6" Y="3.5" Width="4.75" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>ABCEAAAAAAAABAgCAQAAAAAABAAAAAAQAAAAAAAAACA=</HashCode>
+      <FileName>RFIDReader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RFIDPiggyBank.Program">
+    <Position X="0.5" Y="0.5" Width="5.25" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="RFIDPiggyBank.Program.MENU_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.SERVO_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.SECRET_CODE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.SCAN_CARD_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.ADD_CARD_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.DISPLAY_CARDS_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+      <Enum Name="RFIDPiggyBank.Program.DELETE_CARD_STATE" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Program.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>IAgAIABgABCAAAAJIBECAZgIEAAUAABkAoAAzCAQBU0=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RFIDPiggyBank.ListOfCards">
+    <Position X="12.75" Y="0.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AABEAEIAAAAAAAAAAAAAAgAABAAAAAAAQAAQAgAAAAA=</HashCode>
+      <FileName>ListOfCards.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RFIDPiggyBank.LCD">
+    <Position X="6" Y="0.5" Width="6.25" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>CAAFAAAAAAAAICCAAAAAAAAAFAAAAAAAQAAAAABAAAA=</HashCode>
+      <FileName>LCD.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RFIDPiggyBank.Card" Collapsed="true">
+    <Position X="16.25" Y="3.75" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAAAAAABEAAAQABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Card.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
